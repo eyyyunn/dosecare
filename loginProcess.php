@@ -2,38 +2,53 @@
 session_start();
 $conn = new mysqli("localhost", "root", "", "health_tracker");
 
+// Check database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
-    $password = $_POST["password"];
+    $email = trim($_POST["email"]);
+    $password = trim($_POST["password"]);
 
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: login.php?error=Invalid email format");
+        exit();
+    }
+
+    // Prepare SQL statement
     $sql = "SELECT id, name, password, role FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
     
-    if ($user && password_verify($password, $user["password"])) {
-        $_SESSION["user_id"] = $user["id"];
-        $_SESSION["user_name"] = $user["name"];
-        $_SESSION["role"] = $user["role"];
+    if ($stmt) {
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
 
-        // Redirect based on role
-        if ($user["role"] === "admin") {
-            header("Location: admin_dash.php");
+        // Verify password
+        if ($user && password_verify($password, $user["password"])) {
+            $_SESSION["user_id"] = $user["id"];
+            $_SESSION["user_name"] = $user["name"];
+            $_SESSION["role"] = $user["role"];
+
+            // mo redirect base sa role 
+            if ($user["role"] === "admin") {
+                header("Location: dashboard.php");
+            } else {
+                header("Location: home.php");
+            }
+            exit();
         } else {
-            header("Location: home.php");
+            header("Location: login.php?error=Invalid email or password");
+            exit();
         }
-        exit();
     } else {
-        echo "❌ Invalid email or password!";
+        header("Location: login.php?error=Database error");
+        exit();
     }
-    
-    $stmt->close();
 }
 $conn->close();
 ?>

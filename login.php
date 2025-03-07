@@ -1,174 +1,211 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-image: url('bg.jpg'); /* Background Image */
-      background-size: cover;
-      background-position: center;
-    }
-
-    .container {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      padding: 40px;
-      border-radius: 15px;
-      color: white;
-      text-align: center;
-      box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2); /* Shadow only on right & bottom */
-    }
-
-    /* This div applies the blur effect with a light blue tint */
-    .blur-background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(1, 86, 143, 0.2); /* Light Blue Tint */
-      backdrop-filter: blur(10px); /* Blur Effect */
-      border-radius: 15px;
-      z-index: -1; /* Keeps it behind the form */
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .input-group label {
-      font-size: 14px;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .input-group input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 5px;
-      border: none;
-      font-size: 16px;
-      background-color: white; /* Clear white inputs */
-      color: #333;
-      outline: none;
-      transition: all 0.3s ease-in-out;
-    }
-
-    /* Input animation on focus */
-    .input-group input:focus {
-      border: 2px solid #0056b3;
-      box-shadow: 0px 0px 8px rgba(0, 86, 179, 0.6);
-      transform: scale(1.05);
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: black;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      background-color: #222;
-    }
-
-    .alr-acc {
-      font-size: 14px;
-      margin-top: 15px;
-    }
-
-    .login {
-      color: white;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    .login:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<?php
-session_start();
-
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
-    $password = $_POST["password"];
-
-    $sql = "SELECT id, name, password, role FROM users WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
-
-    if ($user && password_verify($password, $user["password"])) {
-        $_SESSION["user_id"] = $user["id"];
-        $_SESSION["user_name"] = $user["name"];
-        $_SESSION["role"] = $user["role"];
-
-        if ($user["role"] == "admin") {
-            header("Location: admin_dash.php"); // Redirect admins
-        } else {
-            header("Location: home.php"); // Redirect normal users
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        exit();
-    } else {
-        echo "Invalid email or password!";
-    }
-}
-?>
 
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #9dcaff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2);
+            background: rgb(250, 250, 250);
+            border-radius: 10px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #4d8de1;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px;
+            padding-right: 40px;
+            border-bottom: 1px solid black;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .input-wrapper input:focus {
+            border: 2px solid #0056b3;
+            box-shadow: 0px 0px 8px rgba(0, 86, 179, 0.6);
+            transform: scale(1.05);
+        }
+
+        .eye-container {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .eye-container i {
+            color: #777;
+            font-size: 18px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .input-wrapper input:focus + .eye-container i {
+            transform: scale(1.2);
+        }
+
+        .eye-container:hover i {
+            color: #222;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(83, 84, 87, 0.98);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #222;
+        }
+
+        .alr-acc {
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .signup {
+            color: #4d8de1;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .signup:hover {
+            text-decoration: underline;
+        }
+
+        /* Error message styling */
+        .error-msg {
+            color: red;
+            font-weight: bold;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
 <body>
-  <div class="container">
-    <div class="blur-background"></div> <!-- This is the blur layer -->
+    <div class="container">
+        <h2>Login</h2>
 
-    <h2>Login</h2>
-    <form action="loginProcess.php" method="post" autocomplete="on">
+        <?php if (isset($_GET["error"])): ?>
+            <p id="error-msg" class="error-msg"><?php echo htmlspecialchars($_GET["error"]); ?></p>
+        <?php endif; ?>
 
-      <div class="input-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" autocomplete="email" required>
-      </div>
+        <form action="loginProcess.php" method="post">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </div>
 
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-      </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" required>
+                    <span class="eye-container" onclick="togglePassword('password', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn" name="submit">Log In</button>
 
-      <button type="submit" class="submit-btn" name="submit">Log In</button>
+            <p class="alr-acc">Don't have an account? <a class="signup" href="signup.php">Sign Up</a></p>
+        </form>
+    </div>
 
-      <p class="alr-acc">Don't have an account? <a class="login" href="signup.html">Sign Up</a></p>
-    </form>
-  </div>
+    <script>
+        function togglePassword(inputId, eyeContainer) {
+            let inputField = document.getElementById(inputId);
+            let eyeIcon = eyeContainer.querySelector("i");
+
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                inputField.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+
+        // Hide error message after 10 seconds
+        window.onload = function () {
+            let errorMsg = document.getElementById("error-msg");
+            if (errorMsg) {
+                setTimeout(function () {
+                    errorMsg.style.display = "none";
+                }, 5000);
+            }
+        };
+    </script>
 </body>
 </html>
